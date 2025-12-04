@@ -3,6 +3,7 @@ import { Activity, Cpu, AlertTriangle, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import InputForm from './InputForm';
 import ResultsDisplay from './ResultsDisplay';
+import Scheduler from './Scheduler';
 import axios from 'axios';
 
 const Dashboard = () => {
@@ -64,6 +65,7 @@ const Dashboard = () => {
 
                 <div className="grid gap-8">
                     <InputForm onAnalyze={handleAnalyze} isLoading={loading} />
+                    <Scheduler />
 
                     {error && (
                         <motion.div

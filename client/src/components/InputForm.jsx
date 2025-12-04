@@ -2,6 +2,33 @@ import React, { useState } from 'react';
 import { Play, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const fieldDefinitions = [
+    { label: "op_setting_1", desc: "Environmental condition (altitude, Mach, ambient)" },
+    { label: "op_setting_2", desc: "Secondary environmental/operational condition" },
+    { label: "op_setting_3", desc: "Engine operating mode (fuel flow/performance bias)" },
+    { label: "sensor_1", desc: "Fan inlet temperature" },
+    { label: "sensor_2", desc: "Low-pressure compressor outlet temperature" },
+    { label: "sensor_3", desc: "High-pressure compressor outlet temperature" },
+    { label: "sensor_4", desc: "Low-pressure turbine outlet temperature" },
+    { label: "sensor_5", desc: "Fan inlet pressure" },
+    { label: "sensor_6", desc: "Bypass duct pressure" },
+    { label: "sensor_7", desc: "HPC outlet pressure" },
+    { label: "sensor_8", desc: "Physical fan speed" },
+    { label: "sensor_9", desc: "Core rotational speed" },
+    { label: "sensor_10", desc: "Engine pressure ratio" },
+    { label: "sensor_11", desc: "Fuel flow" },
+    { label: "sensor_12", desc: "Combustion chamber pressure" },
+    { label: "sensor_13", desc: "HPC coolant flow" },
+    { label: "sensor_14", desc: "Bleed air flow" },
+    { label: "sensor_15", desc: "Turbine coolant flow" },
+    { label: "sensor_16", desc: "Turbine temperature ratio" },
+    { label: "sensor_17", desc: "Exhaust gas temperature" },
+    { label: "sensor_18", desc: "Torque parameter" },
+    { label: "sensor_19", desc: "Control setting #1" },
+    { label: "sensor_20", desc: "Control setting #2" },
+    { label: "sensor_21", desc: "Control setting #3" },
+];
+
 const InputForm = ({ onAnalyze, isLoading }) => {
     // Default sample data (FD001 sample)
     const defaultObservation = "-0.0007, -0.0004, 100.0, 518.67, 641.82, 1589.70, 1400.60, 14.62, 21.61, 554.36, 2388.06, 9046.19, 1.30, 47.47, 521.66, 2388.02, 8138.62, 8.4195, 0.03, 392, 2388, 100.00, 39.06, 23.4190";
@@ -26,6 +53,9 @@ const InputForm = ({ onAnalyze, isLoading }) => {
     const handleReset = () => {
         setInput(defaultObservation);
     };
+
+    const tokens = input.split(',');
+    const labeledValues = fieldDefinitions.map((field, idx) => (tokens[idx] || '').trim());
 
     return (
         <motion.div
@@ -86,6 +116,20 @@ const InputForm = ({ onAnalyze, isLoading }) => {
                     </button>
                 </div>
             </form>
+
+            <div className="label-grid" aria-label="Sensor field mapping">
+                {fieldDefinitions.map((field, idx) => (
+                    <div className="label-row" key={field.label}>
+                        <div className="label-meta">
+                            <span className="label-name">{idx + 1}. {field.label}</span>
+                            <span className="label-desc">{field.desc}</span>
+                        </div>
+                        <span className="label-value">
+                            {labeledValues[idx] || '—'}
+                        </span>
+                    </div>
+                ))}
+            </div>
         </motion.div>
     );
 };
