@@ -40,21 +40,21 @@ const Dashboard = () => {
                             <motion.h1
                                 initial={{ opacity: 0, y: -18 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="text-3xl md:text-4xl font-bold mb-2 gradient-text"
+                                className="hero-title gradient-text mb-2"
                             >
                                 Predictive Maintenance Command Center
                             </motion.h1>
-                            <p className="text-secondary text-sm max-w-xl">
+                            <p className="hero-subtitle max-w-xl">
                                 Run the full agentic pipeline (Prediction → Diagnosis → Risk → Scheduling → Explanation)
                                 against a single engine snapshot and visualize RUL, risk and component health.
                             </p>
                         </div>
                         <div className="hidden md:flex items-center gap-3 text-xs text-secondary">
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/70">
+                            <div className="pill">
                                 <Cpu size={14} className="text-[var(--accent-secondary)]" />
                                 <span>CMAPSS Models</span>
                             </div>
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/70">
+                            <div className="pill">
                                 <FileText size={14} className="text-pink-400" />
                                 <span>LLM Narrative</span>
                             </div>

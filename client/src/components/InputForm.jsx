@@ -47,40 +47,34 @@ const InputForm = ({ onAnalyze, isLoading }) => {
                 <button
                     type="button"
                     onClick={handleReset}
-                    className="text-xs px-3 py-1.5 rounded-full border border-slate-600/70 bg-slate-900/60 hover:bg-slate-800/80 text-slate-200 flex items-center gap-1 transition-colors"
+                    className="ghost text-xs"
                 >
                     <RotateCcw size={14} /> Reset sample
                 </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="form-stack">
                 <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="w-full h-32 bg-[var(--bg-input)] border border-[var(--border-color)]/70 rounded-xl p-3 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-[var(--accent-secondary)] focus:border-transparent outline-none resize-none transition-all shadow-inner"
+                    className="sensor-input"
                     placeholder="e.g. -0.0007, -0.0004, 100.0, ... (24 values total)"
                 />
 
-                <div className="flex items-center justify-between text-[0.7rem] text-secondary/80">
-                    <span>Tip: keep a CSV snippet from your pipeline and paste here for quick what-if analysis.</span>
-                    <span>Expected length: 24 features</span>
+                <div className="flex items-center justify-between text-[0.7rem] text-secondary">
+                    <span className="subtle">Tip: keep a CSV snippet from your pipeline and paste here for quick what-if analysis.</span>
+                    <span className="subtle">Expected length: 24 features</span>
                 </div>
 
                 <div className="pt-2 flex justify-end">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`
-              flex items-center gap-2 px-6 py-2 rounded-full font-medium text-white text-sm tracking-wide
-              border border-transparent transition-all shadow-lg shadow-purple-700/40
-              ${isLoading
-                                ? 'bg-slate-700/80 cursor-not-allowed'
-                                : 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] hover:opacity-90 active:scale-95'}
-            `}
+                        className={`primary text-sm ${isLoading ? 'is-loading' : ''}`}
                     >
                         {isLoading ? (
                             <>
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="spinner" />
                                 Analyzing...
                             </>
                         ) : (

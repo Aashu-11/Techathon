@@ -20,9 +20,9 @@ const Card = ({ title, icon: Icon, children, className = "" }) => (
         animate={{ opacity: 1, scale: 1 }}
         className={`glass-panel p-6 ${className}`}
     >
-        <div className="flex items-center gap-2 mb-4 text-slate-300 border-b border-slate-700/50 pb-2">
-            <Icon size={20} className="text-blue-400" />
-            <h3 className="font-semibold">{title}</h3>
+        <div className="card-header">
+            <Icon size={20} className="card-icon" />
+            <h3>{title}</h3>
         </div>
         {children}
     </motion.div>
@@ -104,8 +104,8 @@ const ResultsDisplay = ({ results }) => {
                 />
 
                 <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
-                    <div className="bg-slate-950/40 border border-[var(--border-color)]/60 rounded-xl p-3">
-                        <span className="text-secondary block text-xs mb-1.5">Ensemble RUL</span>
+                    <div className="stat-tile">
+                        <span className="stat-label">Ensemble RUL</span>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-mono text-white">
                                 {risk_assessment?.avg_rul?.toFixed(0)}
@@ -113,8 +113,8 @@ const ResultsDisplay = ({ results }) => {
                             <span className="text-[0.7rem] text-secondary">cycles</span>
                         </div>
                     </div>
-                    <div className="bg-slate-950/40 border border-[var(--border-color)]/60 rounded-xl p-3">
-                        <span className="text-secondary block text-xs mb-1.5">Diagnostic Confidence</span>
+                    <div className="stat-tile">
+                        <span className="stat-label">Diagnostic Confidence</span>
                         <span className="text-2xl font-mono text-white">
                             {diagnosis?.confidence != null
                                 ? `${(diagnosis.confidence * 100).toFixed(0)}%`
@@ -139,13 +139,13 @@ const ResultsDisplay = ({ results }) => {
                     ].map((item) => (
                         <div
                             key={item.label}
-                            className="bg-slate-950/40 border border-[var(--border-color)]/60 rounded-xl p-3 flex flex-col gap-2"
+                            className="stat-card"
                         >
                             <div className="flex items-center justify-between">
                                 <span className="text-secondary text-[0.7rem] tracking-[0.16em] uppercase">
                                     {item.label}
                                 </span>
-                                <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent-secondary)]">
+                                <span className="mini-pill">
                                     RUL + P(fail)
                                 </span>
                             </div>
@@ -180,7 +180,7 @@ const ResultsDisplay = ({ results }) => {
                                             .map(([comp, prob]) => (
                                                 <span
                                                     key={comp}
-                                                    className="px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/60 text-[0.65rem] text-slate-200"
+                                                    className="tag"
                                                 >
                                                     {componentLabel(comp)}: {(prob * 100).toFixed(0)}%
                                                 </span>
@@ -217,7 +217,7 @@ const ResultsDisplay = ({ results }) => {
                                     // eslint-disable-next-line react/no-array-index-key
                                     <span
                                         key={idx}
-                                        className="px-2 py-1 bg-rose-500/15 text-rose-200 text-[0.7rem] rounded-full border border-rose-400/40"
+                                        className="tag alert"
                                     >
                                         {anomaly}
                                     </span>
@@ -231,7 +231,7 @@ const ResultsDisplay = ({ results }) => {
                     {diagnosis?.reason && (
                         <div className="mt-2">
                             <span className="text-secondary text-xs block mb-1">Agent explanation</span>
-                            <p className="text-xs text-slate-200/90 leading-relaxed">
+                            <p className="text-xs subtle leading-relaxed">
                                 {diagnosis.reason}
                             </p>
                         </div>
@@ -265,10 +265,8 @@ const ResultsDisplay = ({ results }) => {
 
             {/* Explanation Agent (LLM report) */}
             <Card title="Explanation / Report Agent" icon={FileText} className="lg:col-span-3">
-                <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="bg-slate-950/60 p-4 rounded-xl border border-[var(--border-color)] text-slate-200 leading-relaxed whitespace-pre-wrap max-h-[360px] overflow-auto">
-                        {final_report?.narrative || "No report generated."}
-                    </div>
+                <div className="report-box">
+                    {final_report?.narrative || "No report generated."}
                 </div>
             </Card>
         </div>
