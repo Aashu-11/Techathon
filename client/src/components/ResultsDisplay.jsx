@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, CheckCircle, Clock, Activity, FileText, Settings, Cpu } from 'lucide-react';
 
@@ -20,9 +20,9 @@ const Card = ({ title, icon: Icon, children, className = "" }) => (
         animate={{ opacity: 1, scale: 1 }}
         className={`glass-panel p-6 ${className}`}
     >
-        <div className="flex items-center gap-2 mb-4 text-slate-300 border-b border-slate-700/50 pb-2">
-            <Icon size={20} className="text-blue-400" />
-            <h3 className="font-semibold">{title}</h3>
+        <div className="card-header">
+            <Icon size={20} className="card-icon" />
+            <h3>{title}</h3>
         </div>
         {children}
     </motion.div>
@@ -80,6 +80,66 @@ const SimpleSparkline = ({ values }) => {
     );
 };
 
+const BarGraph = ({
+    title,
+    subtitle,
+    data,
+    maxValue,
+    unit = "",
+    valueFormatter,
+    variant = "rul",
+}) => {
+    const hasData = data && data.length > 0 && data.some((item) => item.value != null);
+    if (!hasData) {
+        return (
+            <div className="graph-card">
+                <div className="graph-header">
+                    <div>
+                        <span className="graph-title">{title}</span>
+                        {subtitle && <p className="graph-subtitle">{subtitle}</p>}
+                    </div>
+                    <span className="mini-pill">Graph</span>
+                </div>
+                <div className="chart-placeholder">Awaiting predictions</div>
+            </div>
+        );
+    }
+
+    const safeMax = maxValue || Math.max(...data.map((item) => Math.max(0, item.value || 0)), 1);
+
+    return (
+        <div className="graph-card">
+            <div className="graph-header">
+                <div>
+                    <span className="graph-title">{title}</span>
+                    {subtitle && <p className="graph-subtitle">{subtitle}</p>}
+                </div>
+                <span className="mini-pill">Graph</span>
+            </div>
+            <div className="graph-bars">
+                {data.map((item) => {
+                    const value = Math.max(0, item.value || 0);
+                    const height = Math.min(100, (value / safeMax) * 100);
+                    const formattedValue = valueFormatter
+                        ? valueFormatter(value)
+                        : `${value.toFixed(0)}${unit}`;
+
+                    return (
+                        <div key={item.label} className="graph-bar">
+                            <div
+                                className={`graph-bar-fill ${variant}`}
+                                style={{ height: `${height}%` }}
+                            />
+                            <span className="graph-bar-value">{formattedValue}</span>
+                            <span className="graph-bar-label">{item.label}</span>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
 const ResultsDisplay = ({ results }) => {
     if (!results) return null;
 
@@ -94,6 +154,57 @@ const ResultsDisplay = ({ results }) => {
         fd003?.rul ?? 0,
     ];
 
+    const voiceAvailable = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+    const predictionEntries = [
+        { label: "FD001", data: fd001 },
+        { label: "FD002", data: fd002 },
+        { label: "FD003", data: fd003 },
+    ];
+
+    const rulGraphData = predictionEntries
+        .filter((p) => p.data)
+        .map((p) => ({ label: p.label, value: p.data?.rul ?? 0 }));
+
+    const failureGraphData = predictionEntries
+        .filter((p) => p.data)
+        .map((p) => ({
+            label: p.label,
+            value: (p.data?.failure_probability || 0) * 100,
+        }));
+
+    const componentGraphData = fd003?.component_probs
+        ? Object.entries(fd003.component_probs)
+            .map(([comp, prob]) => ({
+                label: componentLabel(comp),
+                value: prob * 100,
+            }))
+            .sort((a, b) => b.value - a.value)
+        : [];
+
+    const hasPredictionData = predictionEntries.some((p) => p.data);
+
+    const summaryScript = useMemo(() => {
+        if (!predictions) return 'No predictions available.';
+        const p1 = fd001?.rul != null ? `FD001 at ${fd001.rul.toFixed(0)} cycles` : 'FD001 no signal';
+        const p2 = fd002?.rul != null ? `FD002 at ${fd002.rul.toFixed(0)} cycles` : 'FD002 no signal';
+        const p3 = fd003?.rul != null ? `FD003 at ${fd003.rul.toFixed(0)} cycles` : 'FD003 no signal';
+        const predictionLine = `Predicted remaining life: ${p1}, ${p2}, and ${p3}.`;
+        const scheduleLine = maintenance_schedule?.maintenance_window
+            ? `Scheduling guidance: ${maintenance_schedule.maintenance_window} window with ${maintenance_schedule.recommended_actions?.length || 0} recommended actions.`
+            : 'No scheduling guidance available.';
+        return `${predictionLine} ${scheduleLine}`;
+    }, [predictions, fd001, fd002, fd003, maintenance_schedule]);
+
+    const speakSummary = () => {
+        if (!voiceAvailable) return;
+        const utterance = new SpeechSynthesisUtterance(summaryScript);
+        utterance.rate = 1.02;
+        utterance.pitch = 1;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+    };
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Risk & Ensemble Agent */}
@@ -104,8 +215,8 @@ const ResultsDisplay = ({ results }) => {
                 />
 
                 <div className="mt-5 grid grid-cols-2 gap-4 text-sm">
-                    <div className="bg-slate-950/40 border border-[var(--border-color)]/60 rounded-xl p-3">
-                        <span className="text-secondary block text-xs mb-1.5">Ensemble RUL</span>
+                    <div className="stat-tile">
+                        <span className="stat-label">Ensemble RUL</span>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-mono text-white">
                                 {risk_assessment?.avg_rul?.toFixed(0)}
@@ -113,8 +224,8 @@ const ResultsDisplay = ({ results }) => {
                             <span className="text-[0.7rem] text-secondary">cycles</span>
                         </div>
                     </div>
-                    <div className="bg-slate-950/40 border border-[var(--border-color)]/60 rounded-xl p-3">
-                        <span className="text-secondary block text-xs mb-1.5">Diagnostic Confidence</span>
+                    <div className="stat-tile">
+                        <span className="stat-label">Diagnostic Confidence</span>
                         <span className="text-2xl font-mono text-white">
                             {diagnosis?.confidence != null
                                 ? `${(diagnosis.confidence * 100).toFixed(0)}%`
@@ -131,21 +242,104 @@ const ResultsDisplay = ({ results }) => {
 
             {/* Prediction Agent (per-model) */}
             <Card title="Prediction Agent (Models)" icon={Cpu} className="lg:col-span-2">
+                <div className="flex items-center justify-between mb-3">
+                    <span className="text-secondary text-sm">Graphical RUL and failure probability</span>
+                    <button
+                        type="button"
+                        className="ghost text-xs"
+                        onClick={speakSummary}
+                        disabled={!voiceAvailable}
+                    >
+                        Speak summary (predictions → scheduling)
+                    </button>
+                </div>
+                {hasPredictionData ? (
+                    <div className="chart-grid">
+                        {predictionEntries.map((item) => {
+                            const rul = item.data?.rul ?? 0;
+                            const failure = (item.data?.failure_probability || 0) * 100;
+                            const normalizedRul = Math.min(Math.max(rul, 0), 250);
+                            const rulWidth = Math.min(100, Math.max((normalizedRul / 250) * 100, item.data ? 6 : 0));
+                            const failWidth = Math.min(100, Math.max(failure, item.data ? 6 : 0));
+                            return (
+                                <div key={item.label} className="chart-card">
+                                    <div className="flex items-center justify-between mb-1">
+                                        <span className="text-secondary text-xs tracking-[0.16em] uppercase">{item.label}</span>
+                                        <span className="mini-pill">RUL / P(fail)</span>
+                                    </div>
+                                    <div className="chart-row">
+                                        <span className="chart-label">RUL</span>
+                                        <div className="chart-bar">
+                                            <div
+                                                className="chart-fill rul"
+                                                style={{ width: `${rulWidth}%` }}
+                                            />
+                                        </div>
+                                        <span className="chart-value">{item.data?.rul != null ? `${rul.toFixed(0)} cy` : '—'}</span>
+                                    </div>
+                                    <div className="chart-row">
+                                        <span className="chart-label">P(fail)</span>
+                                        <div className="chart-bar">
+                                            <div
+                                                className="chart-fill fail"
+                                                style={{ width: `${failWidth}%` }}
+                                            />
+                                        </div>
+                                        <span className="chart-value">{failure.toFixed(1)}%</span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="chart-placeholder">
+                        Visual analytics will appear once predictions are available.
+                    </div>
+                )}
+                {hasPredictionData && (
+                    <div className="graph-section">
+                        <BarGraph
+                            title="Remaining Useful Life"
+                            subtitle="Model comparison (cycles)"
+                            data={rulGraphData}
+                            unit=" cy"
+                            variant="rul"
+                        />
+                        <BarGraph
+                            title="Failure Probability"
+                            subtitle="Instantaneous risk per model"
+                            data={failureGraphData}
+                            maxValue={100}
+                            valueFormatter={(v) => `${v.toFixed(1)}%`}
+                            variant="fail"
+                        />
+                        {componentGraphData.length > 0 && (
+                            <BarGraph
+                                title="FD003 Component Likelihood"
+                                subtitle="Probabilities from classification head"
+                                data={componentGraphData}
+                                maxValue={100}
+                                valueFormatter={(v) => `${v.toFixed(0)}%`}
+                                variant="component"
+                            />
+                        )}
+                    </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    {[
-                        { label: "FD001", data: fd001 },
-                        { label: "FD002", data: fd002 },
-                        { label: "FD003", data: fd003 },
-                    ].map((item) => (
+                    {predictionEntries.map((item) => (
+
+
+
+
                         <div
                             key={item.label}
-                            className="bg-slate-950/40 border border-[var(--border-color)]/60 rounded-xl p-3 flex flex-col gap-2"
+                            className="stat-card"
                         >
                             <div className="flex items-center justify-between">
                                 <span className="text-secondary text-[0.7rem] tracking-[0.16em] uppercase">
                                     {item.label}
                                 </span>
-                                <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[var(--accent-soft)] text-[var(--accent-secondary)]">
+                                <span className="mini-pill">
                                     RUL + P(fail)
                                 </span>
                             </div>
@@ -180,7 +374,7 @@ const ResultsDisplay = ({ results }) => {
                                             .map(([comp, prob]) => (
                                                 <span
                                                     key={comp}
-                                                    className="px-1.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/60 text-[0.65rem] text-slate-200"
+                                                    className="tag"
                                                 >
                                                     {componentLabel(comp)}: {(prob * 100).toFixed(0)}%
                                                 </span>
@@ -217,7 +411,7 @@ const ResultsDisplay = ({ results }) => {
                                     // eslint-disable-next-line react/no-array-index-key
                                     <span
                                         key={idx}
-                                        className="px-2 py-1 bg-rose-500/15 text-rose-200 text-[0.7rem] rounded-full border border-rose-400/40"
+                                        className="tag alert"
                                     >
                                         {anomaly}
                                     </span>
@@ -231,7 +425,7 @@ const ResultsDisplay = ({ results }) => {
                     {diagnosis?.reason && (
                         <div className="mt-2">
                             <span className="text-secondary text-xs block mb-1">Agent explanation</span>
-                            <p className="text-xs text-slate-200/90 leading-relaxed">
+                            <p className="text-xs subtle leading-relaxed">
                                 {diagnosis.reason}
                             </p>
                         </div>
@@ -265,10 +459,8 @@ const ResultsDisplay = ({ results }) => {
 
             {/* Explanation Agent (LLM report) */}
             <Card title="Explanation / Report Agent" icon={FileText} className="lg:col-span-3">
-                <div className="prose prose-invert prose-sm max-w-none">
-                    <div className="bg-slate-950/60 p-4 rounded-xl border border-[var(--border-color)] text-slate-200 leading-relaxed whitespace-pre-wrap max-h-[360px] overflow-auto">
-                        {final_report?.narrative || "No report generated."}
-                    </div>
+                <div className="report-box">
+                    {final_report?.narrative || "No report generated."}
                 </div>
             </Card>
         </div>
