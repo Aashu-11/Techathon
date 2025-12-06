@@ -3,7 +3,6 @@ import { Activity, Cpu, AlertTriangle, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import InputForm from './InputForm';
 import ResultsDisplay from './ResultsDisplay';
-import Scheduler from './Scheduler';
 import axios from 'axios';
 
 const Dashboard = () => {
@@ -41,21 +40,21 @@ const Dashboard = () => {
                             <motion.h1
                                 initial={{ opacity: 0, y: -18 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="hero-title gradient-text mb-2"
+                                className="text-3xl md:text-4xl font-bold mb-2 gradient-text"
                             >
                                 Predictive Maintenance Command Center
                             </motion.h1>
-                            <p className="hero-subtitle max-w-xl">
+                            <p className="text-secondary text-sm max-w-xl">
                                 Run the full agentic pipeline (Prediction → Diagnosis → Risk → Scheduling → Explanation)
                                 against a single engine snapshot and visualize RUL, risk and component health.
                             </p>
                         </div>
                         <div className="hidden md:flex items-center gap-3 text-xs text-secondary">
-                            <div className="pill">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/70">
                                 <Cpu size={14} className="text-[var(--accent-secondary)]" />
                                 <span>CMAPSS Models</span>
                             </div>
-                            <div className="pill">
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/70">
                                 <FileText size={14} className="text-pink-400" />
                                 <span>LLM Narrative</span>
                             </div>
@@ -65,7 +64,6 @@ const Dashboard = () => {
 
                 <div className="grid gap-8">
                     <InputForm onAnalyze={handleAnalyze} isLoading={loading} />
-                    <Scheduler />
 
                     {error && (
                         <motion.div

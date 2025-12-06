@@ -2,33 +2,6 @@ import React, { useState } from 'react';
 import { Play, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const fieldDefinitions = [
-    { label: "op_setting_1", desc: "Environmental condition (altitude, Mach, ambient)" },
-    { label: "op_setting_2", desc: "Secondary environmental/operational condition" },
-    { label: "op_setting_3", desc: "Engine operating mode (fuel flow/performance bias)" },
-    { label: "sensor_1", desc: "Fan inlet temperature" },
-    { label: "sensor_2", desc: "Low-pressure compressor outlet temperature" },
-    { label: "sensor_3", desc: "High-pressure compressor outlet temperature" },
-    { label: "sensor_4", desc: "Low-pressure turbine outlet temperature" },
-    { label: "sensor_5", desc: "Fan inlet pressure" },
-    { label: "sensor_6", desc: "Bypass duct pressure" },
-    { label: "sensor_7", desc: "HPC outlet pressure" },
-    { label: "sensor_8", desc: "Physical fan speed" },
-    { label: "sensor_9", desc: "Core rotational speed" },
-    { label: "sensor_10", desc: "Engine pressure ratio" },
-    { label: "sensor_11", desc: "Fuel flow" },
-    { label: "sensor_12", desc: "Combustion chamber pressure" },
-    { label: "sensor_13", desc: "HPC coolant flow" },
-    { label: "sensor_14", desc: "Bleed air flow" },
-    { label: "sensor_15", desc: "Turbine coolant flow" },
-    { label: "sensor_16", desc: "Turbine temperature ratio" },
-    { label: "sensor_17", desc: "Exhaust gas temperature" },
-    { label: "sensor_18", desc: "Torque parameter" },
-    { label: "sensor_19", desc: "Control setting #1" },
-    { label: "sensor_20", desc: "Control setting #2" },
-    { label: "sensor_21", desc: "Control setting #3" },
-];
-
 const InputForm = ({ onAnalyze, isLoading }) => {
     // Default sample data (FD001 sample)
     const defaultObservation = "-0.0007, -0.0004, 100.0, 518.67, 641.82, 1589.70, 1400.60, 14.62, 21.61, 554.36, 2388.06, 9046.19, 1.30, 47.47, 521.66, 2388.02, 8138.62, 8.4195, 0.03, 392, 2388, 100.00, 39.06, 23.4190";
@@ -54,9 +27,6 @@ const InputForm = ({ onAnalyze, isLoading }) => {
         setInput(defaultObservation);
     };
 
-    const tokens = input.split(',');
-    const labeledValues = fieldDefinitions.map((field, idx) => (tokens[idx] || '').trim());
-
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -77,34 +47,40 @@ const InputForm = ({ onAnalyze, isLoading }) => {
                 <button
                     type="button"
                     onClick={handleReset}
-                    className="ghost text-xs"
+                    className="text-xs px-3 py-1.5 rounded-full border border-slate-600/70 bg-slate-900/60 hover:bg-slate-800/80 text-slate-200 flex items-center gap-1 transition-colors"
                 >
                     <RotateCcw size={14} /> Reset sample
                 </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="form-stack">
+            <form onSubmit={handleSubmit} className="space-y-3">
                 <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="sensor-input"
+                    className="w-full h-32 bg-[var(--bg-input)] border border-[var(--border-color)]/70 rounded-xl p-3 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-[var(--accent-secondary)] focus:border-transparent outline-none resize-none transition-all shadow-inner"
                     placeholder="e.g. -0.0007, -0.0004, 100.0, ... (24 values total)"
                 />
 
-                <div className="flex items-center justify-between text-[0.7rem] text-secondary">
-                    <span className="subtle">Tip: keep a CSV snippet from your pipeline and paste here for quick what-if analysis.</span>
-                    <span className="subtle">Expected length: 24 features</span>
+                <div className="flex items-center justify-between text-[0.7rem] text-secondary/80">
+                    <span>Tip: keep a CSV snippet from your pipeline and paste here for quick what-if analysis.</span>
+                    <span>Expected length: 24 features</span>
                 </div>
 
                 <div className="pt-2 flex justify-end">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={`primary text-sm ${isLoading ? 'is-loading' : ''}`}
+                        className={`
+              flex items-center gap-2 px-6 py-2 rounded-full font-medium text-white text-sm tracking-wide
+              border border-transparent transition-all shadow-lg shadow-purple-700/40
+              ${isLoading
+                                ? 'bg-slate-700/80 cursor-not-allowed'
+                                : 'bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] hover:opacity-90 active:scale-95'}
+            `}
                     >
                         {isLoading ? (
                             <>
-                                <div className="spinner" />
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 Analyzing...
                             </>
                         ) : (
@@ -116,20 +92,6 @@ const InputForm = ({ onAnalyze, isLoading }) => {
                     </button>
                 </div>
             </form>
-
-            <div className="label-grid" aria-label="Sensor field mapping">
-                {fieldDefinitions.map((field, idx) => (
-                    <div className="label-row" key={field.label}>
-                        <div className="label-meta">
-                            <span className="label-name">{idx + 1}. {field.label}</span>
-                            <span className="label-desc">{field.desc}</span>
-                        </div>
-                        <span className="label-value">
-                            {labeledValues[idx] || '—'}
-                        </span>
-                    </div>
-                ))}
-            </div>
         </motion.div>
     );
 };

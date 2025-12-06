@@ -1,0 +1,53 @@
+<svg fill="none" viewBox="0 0 800 200" width="800" height="200" xmlns="http://www.w3.org/2000/svg">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <style>
+        @keyframes typing {
+          from { width: 0 }
+          to { width: 100% }
+        }
+        @keyframes blink {
+          50% { border-color: transparent }
+        }
+        .container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 200px;
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          font-family: 'Courier New', Courier, monospace;
+          color: #38bdf8;
+          border-radius: 10px;
+        }
+        .typing-text {
+          overflow: hidden;
+          border-right: .15em solid #38bdf8;
+          white-space: nowrap;
+          margin: 0 auto;
+          letter-spacing: .15em;
+          animation: 
+            typing 3.5s steps(40, end),
+            blink .75s step-end infinite;
+          font-size: 24px;
+          font-weight: bold;
+        }
+        .subtitle {
+          margin-top: 15px;
+          font-size: 16px;
+          color: #94a3b8;
+          opacity: 0;
+          animation: fadeIn 1s ease-in forwards;
+          animation-delay: 3.5s;
+        }
+        @keyframes fadeIn {
+          to { opacity: 1; }
+        }
+      </style>
+      <div class="container">
+        <div class="typing-text">Predictive Maintenance System AI</div>
+        <div class="subtitle">Powered by LangGraph, Gemini 2.0 &amp; CMAPSS Models</div>
+      </div>
+    </div>
+  </foreignObject>
+</svg>
