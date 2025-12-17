@@ -59,7 +59,7 @@
 
 ## 📖 Overview
 
-The **Predictive Maintenance System** is a cutting-edge multi-agent AI platform designed to predict, diagnose, and prevent turbofan engine failures. By combining **NASA CMAPSS models** with **LangGraph agents** and **Google Gemini 2.0**, it transforms raw sensor data into actionable maintenance intelligence.
+The **Predictive Maintenance System** is a cutting-edge multi-agent AI platform designed to predict, diagnose, and prevent turbofan engine failures. By combining **NASA CMAPSS models** with **LangGraph agents** and **Phi3**, it transforms raw sensor data into actionable maintenance intelligence.
 
 Unlike traditional systems that only output numbers, this system **reasons** about failures, explains **why** they are happening, and recommends **when** to fix them.
 
@@ -78,38 +78,7 @@ Unlike traditional systems that only output numbers, this system **reasons** abo
 
 The system follows a **state-machine architecture** orchestrated by LangGraph. Data flows through a pipeline of agents, each enriching the global state.
 
-```mermaid
-graph TB
-    subgraph "Client Layer"
-        UI[React Frontend]
-    end
-    
-    subgraph "Orchestration Layer"
-        Workflow[LangGraph Workflow]
-    end
-    
-    subgraph "Agent Layer"
-        PA[Prediction Agent]
-        DA[Diagnosis Agent]
-        RA[Risk Agent]
-        SA[Scheduling Agent]
-        EA[Explanation Agent]
-    end
-    
-    subgraph "Intelligence"
-        Gemini[Gemini 2.0 Flash]
-        VectorDB[ChromaDB]
-        Models[CMAPSS Models]
-    end
-    
-    UI -->|Sensor Data| Workflow
-    Workflow --> PA --> DA --> RA --> SA --> EA
-    EA -->|Final Report| UI
-    
-    PA -.-> Models
-    DA -.-> VectorDB & Gemini
-    EA -.-> Gemini
-```
+
 
 ## 🛠 Tech Stack
 
@@ -140,7 +109,7 @@ graph TB
 
 -   **Core**: Python 3.10+, Flask
 -   **Orchestration**: LangGraph
--   **LLM**: Google Gemini 2.0 Flash (`google-generativeai`)
+-   **LLM**: Phi3 
 -   **ML**: Scikit-learn, LightGBM, NumPy, Pandas
 -   **Vector DB**: ChromaDB / Pinecone
 -   **Frontend**: React, Vite, Lucide Icons, Framer Motion
@@ -150,7 +119,7 @@ graph TB
 ### Prerequisites
 -   Python 3.10+
 -   Node.js 18+
--   Google Gemini API Key
+-   Ollama Phi3
 
 ### 1. Backend Setup
 
@@ -165,9 +134,6 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Set up environment variables
-echo "GOOGLE_API_KEY=your_api_key_here" > .env
 
 # Run the server
 python server.py
