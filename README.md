@@ -76,9 +76,9 @@ Unlike traditional systems that only output numbers, this system **reasons** abo
 ## 🏗 Architecture
 
 The system follows a **state-machine architecture** orchestrated by LangGraph. Data flows through a pipeline of agents, each enriching the global state.
-
-<img src="assets/architecture.png" alt="Architecture Diagram" width="800" />
-
+<div align="center">
+  <img src="assets/architecture.png" alt="Architecture Diagram" width="800" />
+</div>
 
 ## 🛠 Tech Stack
 
