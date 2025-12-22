@@ -9,7 +9,7 @@
   [![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://reactjs.org/)
   [![LangGraph](https://img.shields.io/badge/LangGraph-Orchestration-orange?style=for-the-badge)](https://langchain-ai.github.io/langgraph/)
 
-  <h3>🚀 AI-Driven Predictive Maintenance for Turbofan Engines</h3>
+  <h3>🚀 AI-Driven Predictive Maintenance</h3>
 
   <p>
     <a href="#-features">Features</a> •
